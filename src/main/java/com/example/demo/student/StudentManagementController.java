@@ -3,6 +3,7 @@ package com.example.demo.student;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,11 +33,13 @@ import static com.example.util.StudentHelper.STUDENTS;
 public class StudentManagementController {
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ADMINTRAINEE')")
     public List<Student> getStudents() {
         return STUDENTS;
     }
 
     @GetMapping("/{studentId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ADMINTRAINEE')")
     public ResponseEntity<Student> getStudent(@PathVariable("studentId") Integer studentId) {
         Student student = STUDENTS
                         .stream()
@@ -47,6 +50,7 @@ public class StudentManagementController {
     }
 
     @PostMapping(produces = "application/json", consumes = "application/json")
+    @PreAuthorize("hasAuthority('student_write')")
     public ResponseEntity<Student> registerNewStudent(@RequestBody Student student) {
         Optional<Integer> maxIdOptional = getStudents().stream().map(Student::getStudentId).max(Integer::compare);
         int maxId = 0;
@@ -79,6 +83,7 @@ public class StudentManagementController {
     }
 
     @PutMapping(path = "{studentId}", produces = "application/json", consumes = "application/json")
+    @PreAuthorize("hasAuthority('student_write')")
     public ResponseEntity<Student> updateStudent(@PathVariable("studentId") Integer studentId, @RequestBody Student student) {
         final Student oldStudent = getStudent(studentId).getBody();
 
@@ -100,6 +105,7 @@ public class StudentManagementController {
     }
 
     @DeleteMapping(path = "{studentId}")
+    @PreAuthorize("hasAuthority('student_write')")
     public void deleteStudent(@PathVariable("studentId") Integer studentId) {
         log.info(String.format("Erased of the system the user with ID: %s", studentId));
     }
