@@ -30,14 +30,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/", "index.html", "/css/*", "/js/*").permitAll()
-            // Only allow access students with role STUDENT
+            .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
             .antMatchers("/api/**").hasRole(STUDENT.name())
             .anyRequest()
             .authenticated()
             .and()
-            .httpBasic();
+            .formLogin()
+            .loginPage("/login").permitAll()
+            .defaultSuccessUrl("/courses", true);
     }
 
     @Override
